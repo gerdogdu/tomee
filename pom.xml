@@ -116,7 +116,7 @@
     <geronimo-javamail_1.6_mail.version>1.0.0</geronimo-javamail_1.6_mail.version>
 
     <openjpa.version>3.1.2</openjpa.version>
-    <openwebbeans.version>2.0.12</openwebbeans.version>
+    <openwebbeans.version>2.0.22-SNAPSHOT</openwebbeans.version>
     <jcs.version>2.1</jcs.version>
     <johnzon.version>1.2.10</johnzon.version>
     <quartz-openejb-shade.version>2.2.4</quartz-openejb-shade.version>
@@ -147,7 +147,7 @@
     <version.shrinkwrap.descriptor>2.0.0</version.shrinkwrap.descriptor>
     <version.shrinkwrap.shrinkwrap>1.2.6</version.shrinkwrap.shrinkwrap>
 
-    <tomcat.version>9.0.41</tomcat.version>
+    <tomcat.version>9.0.43</tomcat.version>
 
     <cxf.version>3.3.8</cxf.version>
     <ehcache.version>2.10.3</ehcache.version>
@@ -196,7 +196,7 @@
     <scannotation.version>1.0.2</scannotation.version>
     <geronimo.connector.version>3.1.4</geronimo.connector.version>
     <geronimo-osgi.version>1.1</geronimo-osgi.version>
-    <myfaces.version>2.3.7</myfaces.version>
+    <myfaces.version>2.3.8</myfaces.version>
     <mojarra.version>2.3.14</mojarra.version>
     <slf4j.version>1.7.21</slf4j.version>
     <log4j.version>1.2.17</log4j.version>
