@@ -17,6 +17,7 @@
 
 package org.apache.openejb.config;
 
+import jakarta.enterprise.concurrent.ContextServiceDefinition;
 import jakarta.interceptor.AroundConstruct;
 import org.apache.openejb.BeanContext;
 import org.apache.openejb.OpenEJBException;
@@ -47,6 +48,7 @@ import org.apache.openejb.jee.ConcurrentMethod;
 import org.apache.openejb.jee.ConfigProperty;
 import org.apache.openejb.jee.ContainerConcurrency;
 import org.apache.openejb.jee.ContainerTransaction;
+import org.apache.openejb.jee.ContextService;
 import org.apache.openejb.jee.DataSource;
 import org.apache.openejb.jee.EjbJar;
 import org.apache.openejb.jee.EjbLocalRef;
@@ -56,8 +58,6 @@ import org.apache.openejb.jee.Empty;
 import org.apache.openejb.jee.EnterpriseBean;
 import org.apache.openejb.jee.EnvEntry;
 import org.apache.openejb.jee.ExcludeList;
-import org.apache.openejb.jee.FacesConfig;
-import org.apache.openejb.jee.FacesManagedBean;
 import org.apache.openejb.jee.Filter;
 import org.apache.openejb.jee.Handler;
 import org.apache.openejb.jee.HandlerChains;
@@ -123,6 +123,7 @@ import org.apache.openejb.jee.TransactionSupportType;
 import org.apache.openejb.jee.TransactionType;
 import org.apache.openejb.jee.WebApp;
 import org.apache.openejb.jee.WebserviceDescription;
+import org.apache.openejb.jee.jba.JndiName;
 import org.apache.openejb.jee.oejb3.OpenejbJar;
 import org.apache.openejb.loader.JarLocation;
 import org.apache.openejb.loader.SystemInstance;
@@ -288,15 +289,6 @@ public class AnnotationDeployer implements DynamicDeployer {
     private static final String[] JSF_CLASSES = new String[]{
         "jakarta.faces.application.ResourceDependencies",
         "jakarta.faces.application.ResourceDependency",
-        "jakarta.faces.bean.ApplicationScoped",
-        "jakarta.faces.bean.CustomScoped",
-        "jakarta.faces.bean.ManagedBean",
-        "jakarta.faces.bean.ManagedProperty",
-        "jakarta.faces.bean.NoneScoped",
-        "jakarta.faces.bean.ReferencedBean",
-        "jakarta.faces.bean.RequestScoped",
-        "jakarta.faces.bean.SessionScoped",
-        "jakarta.faces.bean.ViewScoped",
         "jakarta.faces.component.FacesComponent",
         "jakarta.faces.component.UIComponent",
         "jakarta.faces.convert.Converter",
@@ -2432,25 +2424,6 @@ public class AnnotationDeployer implements DynamicDeployer {
                 }
             }
 
-            /*
-             * JSF ManagedBean classes are scanned
-             */
-            for (final FacesConfig facesConfig : webModule.getFacesConfigs()) {
-                for (final FacesManagedBean bean : facesConfig.getManagedBean()) {
-                    final String managedBeanClass = realClassName(bean.getManagedBeanClass().trim());
-                    if (managedBeanClass != null) {
-                        try {
-                            final Class clazz = classLoader.loadClass(managedBeanClass);
-                            classes.add(clazz);
-                        } catch (final ClassNotFoundException | NoClassDefFoundError e) {
-                            logger.debug("Could not load Faces managed bean class {1} for web module {2} / {3}",
-                                         managedBeanClass, webModule.getJarLocation(), webModule.getFile().getName());
-                            logger.error("Unable to load JSF managed bean class: " + managedBeanClass);
-                        }
-                    }
-                }
-            }
-
             final IAnnotationFinder finder = webModule.getFinder();
 
             if (finder != null) {
@@ -4093,6 +4066,22 @@ public class AnnotationDeployer implements DynamicDeployer {
             }
 
             //
+            // @ContextServiceDefinition
+            //
+
+            for (final Annotated<Class<?>> annotated : annotationFinder.findMetaAnnotatedClasses(ContextServiceDefinition.List.class)) {
+                final ContextServiceDefinition.List defs = annotated.getAnnotation(ContextServiceDefinition.List.class);
+                for (final ContextServiceDefinition definition : defs.value()) {
+                    buildContextServiceDefinition(consumer, definition);
+                }
+            }
+
+            for (final Annotated<Class<?>> annotated : annotationFinder.findMetaAnnotatedClasses(ContextServiceDefinition.class)) {
+                final ContextServiceDefinition definition = annotated.getAnnotation(ContextServiceDefinition.class);
+                buildContextServiceDefinition(consumer, definition);
+            }
+
+            //
             // @JMSConnectionFactoryDefinition
             //
 
@@ -4121,6 +4110,31 @@ public class AnnotationDeployer implements DynamicDeployer {
             for (final Annotated<Class<?>> annotated : annotationFinder.findMetaAnnotatedClasses(JMSDestinationDefinition.class)) {
                 buildDestinationDefinition(consumer, annotated.getAnnotation(JMSDestinationDefinition.class));
             }
+        }
+
+        private void buildContextServiceDefinition(final JndiConsumer consumer, final ContextServiceDefinition definition) {
+            final ContextService existing = consumer.getContextServiceMap().get(definition.name());
+            final ContextService contextService = (existing != null) ? existing : new ContextService();
+
+            if (contextService.getName() == null) {
+                final JndiName jndiName = new JndiName();
+                jndiName.setvalue(definition.name());
+                contextService.setName(jndiName);
+            }
+
+            if (contextService.getCleared().isEmpty()) {
+                contextService.getCleared().addAll(Arrays.asList(definition.cleared()));
+            }
+
+            if (contextService.getPropagated().isEmpty()) {
+                contextService.getPropagated().addAll(Arrays.asList(definition.propagated()));
+            }
+
+            if (contextService.getUnchanged().isEmpty()) {
+                contextService.getUnchanged().addAll(Arrays.asList(definition.unchanged()));
+            }
+
+            consumer.getContextServiceMap().put(definition.name(), contextService);
         }
 
         private void buildContext(final JndiConsumer consumer, final Member member) {

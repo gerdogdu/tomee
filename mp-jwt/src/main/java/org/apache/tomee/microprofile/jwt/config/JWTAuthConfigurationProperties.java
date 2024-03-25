@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 import static org.eclipse.microprofile.jwt.config.Names.AUDIENCES;
@@ -47,6 +46,8 @@ import static org.eclipse.microprofile.jwt.config.Names.TOKEN_COOKIE;
 import static org.eclipse.microprofile.jwt.config.Names.TOKEN_HEADER;
 import static org.eclipse.microprofile.jwt.config.Names.VERIFIER_PUBLIC_KEY;
 import static org.eclipse.microprofile.jwt.config.Names.VERIFIER_PUBLIC_KEY_LOCATION;
+import static org.eclipse.microprofile.jwt.config.Names.TOKEN_AGE;
+import static org.eclipse.microprofile.jwt.config.Names.CLOCK_SKEW;
 
 /**
  * The purpose of this class is to create an instance of JWTAuthConfiguration using
@@ -117,16 +118,21 @@ public class JWTAuthConfigurationProperties {
                 config.getOptionalValue(TOKEN_HEADER, String.class).map(String::toLowerCase).orElse("authorization"),
                 config.getOptionalValue(TOKEN_COOKIE, String.class).map(String::toLowerCase).orElse("bearer"),
                 config.getOptionalValue("mp.jwt.decrypt.key.algorithm", String.class).orElse(null),
-                config.getOptionalValue("mp.jwt.verify.publickey.algorithm", String.class).orElse(null));
+                config.getOptionalValue("mp.jwt.verify.publickey.algorithm", String.class).orElse(null),
+                config.getOptionalValue(TOKEN_AGE, Integer.class).orElse(null),
+                config.getOptionalValue(CLOCK_SKEW, Integer.class).orElse(0));
     }
-    
+  
     private Boolean queryAllowExp(){
-        return config.getOptionalValue("tomee.mp.jwt.allow.no-exp", Boolean.class)
-                .or(() -> config.getOptionalValue("mp.jwt.tomee.allow.no-exp", Boolean.class)
-                        .map(value -> {
-                            CONFIGURATION.warning("mp.jwt.tomee.allow.no-exp property is deprecated, use tomee.mp.jwt.allow.no-exp propert instead.");
-                            return value;
-                        }))
+        final Optional<Boolean> allowExp = config.getOptionalValue("tomee.mp.jwt.allow.no-exp", Boolean.class);
+        final Optional<Boolean> allowExpDeprecatedValue = config.getOptionalValue("mp.jwt.tomee.allow.no-exp", Boolean.class);
+
+        if (allowExpDeprecatedValue.isPresent()) {
+            CONFIGURATION.warning("mp.jwt.tomee.allow.no-exp property is deprecated, use tomee.mp.jwt.allow.no-exp property instead.");
+        }
+
+        return allowExp
+                .or(() -> allowExpDeprecatedValue)
                 .orElse(false);
     }
     
