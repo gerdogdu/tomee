@@ -24,7 +24,7 @@
   <parent>
     <artifactId>tomee</artifactId>
     <groupId>org.apache.tomee</groupId>
-    <version>10.0.0-M1-SNAPSHOT</version>
+    <version>10.0.0-M3-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -327,8 +327,8 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>activemq-broker-shade</artifactId>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-broker</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.activemq</groupId>
@@ -341,8 +341,8 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>activemq-ra-shade</artifactId>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-ra</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.batchee</groupId>
@@ -548,13 +548,13 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.swizzle</groupId>
-      <artifactId>swizzle-stream</artifactId>
+      <groupId>org.tomitribe</groupId>
+      <artifactId>swizzle</artifactId>
     </dependency>
     <dependency>
       <groupId>org.easymock</groupId>
       <artifactId>easymock</artifactId>
-      <version>3.2</version>
+      <version>5.3.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -569,7 +569,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
-        <version>3.1.0</version>
+        <version>3.4.0</version>
         <configuration>
           <dependentWarExcludes>
             %regex[(WEB-INF/)?lib/(tomee-)?myfaces(-api|-impl)?-.*.jar],

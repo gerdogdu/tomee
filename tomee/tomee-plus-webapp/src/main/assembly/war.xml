@@ -100,11 +100,7 @@
         it picks up transitive dependencies from shaded libraries
         -->
         <!-- exclude shaded artifacts because they are under our own groupId -->
-        <exclude>org.apache.activemq:activemq-broker</exclude>
-        <exclude>org.apache.activemq:activemq-kahadb-store</exclude>
-        <exclude>org.apache.activemq:activemq-ra</exclude>
         <exclude>org.apache.commons.dbcp2:*</exclude>
-        <exclude>commons-fileupload:*</exclude>
         <exclude>org.metatype.sxc:*</exclude>
         <exclude>org.apache.taglibs:*</exclude>
 
@@ -149,7 +145,7 @@
       <useTransitiveFiltering>true</useTransitiveFiltering>
       <includes>
         <include>org.apache.tomee:tomee-loader</include>
-        <include>org.codehaus.swizzle:swizzle-stream</include>
+        <include>org.tomitribe.swizzle:swizzle</include>
       </includes>
     </dependencySet>
     <dependencySet>

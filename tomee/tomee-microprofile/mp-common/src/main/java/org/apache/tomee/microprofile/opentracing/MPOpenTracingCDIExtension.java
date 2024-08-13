@@ -20,6 +20,7 @@ import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.inject.spi.BeanManager;
 import jakarta.enterprise.inject.spi.BeforeBeanDiscovery;
 import jakarta.enterprise.inject.spi.Extension;
+import org.apache.openejb.loader.SystemInstance;
 
 public class MPOpenTracingCDIExtension implements Extension {
 
@@ -30,6 +31,9 @@ public class MPOpenTracingCDIExtension implements Extension {
      * @param beanManager the BeanManager reference
      */
     public void observeBeforeBeanDiscovery(@Observes final BeforeBeanDiscovery bbd, final BeanManager beanManager) {
+        if ("none".equals(SystemInstance.get().getOptions().get("tomee.mp.scan", "none"))) {
+            return;
+        }
         bbd.addAnnotatedType(beanManager.createAnnotatedType(TracerProducer.class), "TracerProducer");
     }
 

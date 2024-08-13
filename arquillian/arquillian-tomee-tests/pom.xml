@@ -16,7 +16,7 @@
   <parent>
     <artifactId>arquillian</artifactId>
     <groupId>org.apache.tomee</groupId>
-    <version>10.0.0-M1-SNAPSHOT</version>
+    <version>10.0.0-M3-SNAPSHOT</version>
   </parent>
   
   <artifactId>arquillian-tomee-tests</artifactId>
@@ -54,7 +54,7 @@
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpcore</artifactId>
-      <version>4.2.4</version>
+      <version>4.4.16</version>
       <scope>test</scope>
     </dependency>
 
@@ -122,12 +122,12 @@
 
     <!-- ActiveMQ is optional in openejb-core -->
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>activemq-ra-shade</artifactId>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-ra</artifactId>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>activemq-broker-shade</artifactId>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-broker</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.activemq</groupId>
@@ -163,7 +163,7 @@
     <dependency>
       <groupId>org.jboss</groupId>
       <artifactId>jandex</artifactId>
-      <version>2.4.2.Final</version>
+      <version>2.4.5.Final</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -175,7 +175,7 @@
     <dependency>
       <groupId>net.bytebuddy</groupId>
       <artifactId>byte-buddy</artifactId>
-      <version>1.12.8</version>
+      <version>1.14.18</version>
       <scope>provided</scope>
     </dependency>
     <!-- just to get it in the correct order -->
@@ -426,168 +426,6 @@
       </build>
     </profile>
 
-
-    <profile>
-      <id>buildbot</id>
-
-      <dependencies>
-        <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>arquillian-tomee-embedded</artifactId>
-          <version>${project.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>arquillian-tomee-remote</artifactId>
-          <version>${project.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>arquillian-tomee-webapp-remote</artifactId>
-          <version>${project.version}</version>
-        </dependency>
-
-        <!-- just to get it in the correct order -->
-        <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>apache-tomee</artifactId>
-          <version>${project.version}</version>
-          <classifier>webprofile</classifier>
-          <type>zip</type>
-        </dependency>
-        <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>apache-tomee</artifactId>
-          <version>${project.version}</version>
-          <classifier>plus</classifier>
-          <type>zip</type>
-        </dependency>
-        <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>apache-tomee</artifactId>
-          <version>${project.version}</version>
-          <classifier>plume</classifier>
-          <type>zip</type>
-        </dependency>
-
-        <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>tomee-webapp</artifactId>
-          <version>${project.version}</version>
-          <type>war</type>
-        </dependency>
-        <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>tomee-plus-webapp</artifactId>
-          <version>${project.version}</version>
-          <type>war</type>
-        </dependency>
-        <dependency>
-          <groupId>${project.groupId}</groupId>
-          <artifactId>tomee-plume-webapp</artifactId>
-          <version>${project.version}</version>
-          <type>war</type>
-        </dependency>
-        <dependency>
-          <groupId>org.apache.tomcat</groupId>
-          <artifactId>tomcat</artifactId>
-          <version>${tomcat.version}</version>
-          <type>zip</type>
-        </dependency>
-
-      </dependencies>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>${surefire.version}</version>
-            <executions>
-              <execution>
-                <id>test-tomee-embedded</id>
-                <phase>test</phase>
-                <goals>
-                  <goal>test</goal>
-                </goals>
-                <configuration>
-                  <skip>${maven.test.skip}</skip>
-                  <argLine>-XX:MaxPermSize=768M</argLine>
-                  <systemPropertyVariables>
-                    <tomee.version>${project.version}</tomee.version>
-                    <arquillian.launch>tomee-embedded</arquillian.launch>
-                    <openejb.arquillian.adapter>tomee-embedded</openejb.arquillian.adapter>
-                  </systemPropertyVariables>
-                </configuration>
-              </execution>
-
-              <!-- Remote against Web Profile, JAX-RS and Plus -->
-
-              <execution>
-                <id>test-tomee-remote-webprofile</id>
-                <phase>test</phase>
-                <goals>
-                  <goal>test</goal>
-                </goals>
-                <configuration>
-                  <skip>false</skip>
-                  <systemPropertyVariables>
-                    <openejb.arquillian.debug>true</openejb.arquillian.debug>
-                    <tomee.version>${project.version}</tomee.version>
-                    <tomee.classifier>webprofile</tomee.classifier>
-                    <arquillian.launch>tomee-remote</arquillian.launch>
-                    <openejb.arquillian.adapter>tomee-remote</openejb.arquillian.adapter>
-                  </systemPropertyVariables>
-                </configuration>
-              </execution>
-              <execution>
-                <id>test-tomee-remote-plus</id>
-                <phase>test</phase>
-                <goals>
-                  <goal>test</goal>
-                </goals>
-                <configuration>
-                  <skip>${maven.test.skip}</skip>
-                  <systemPropertyVariables>
-                    <openejb.arquillian.debug>true</openejb.arquillian.debug>
-                    <tomee.version>${project.version}</tomee.version>
-                    <tomee.classifier>plus</tomee.classifier>
-                    <arquillian.launch>tomee-remote</arquillian.launch>
-                    <openejb.arquillian.adapter>tomee-remote</openejb.arquillian.adapter>
-                  </systemPropertyVariables>
-                </configuration>
-              </execution>
-              <execution>
-                <id>test-tomee-remote-plume</id>
-                <phase>test</phase>
-                <goals>
-                  <goal>test</goal>
-                </goals>
-                <configuration>
-                  <skip>${maven.test.skip}</skip>
-                  <systemPropertyVariables>
-                    <openejb.arquillian.debug>true</openejb.arquillian.debug>
-                    <tomee.version>${project.version}</tomee.version>
-                    <tomee.classifier>plume</tomee.classifier>
-                    <arquillian.launch>tomee-remote</arquillian.launch>
-                    <openejb.arquillian.adapter>tomee-remote</openejb.arquillian.adapter>
-                  </systemPropertyVariables>
-                  <excludes>
-                    <exclude>**/AppComposerTest.java</exclude>
-                  </excludes>
-                </configuration>
-              </execution>
-            </executions>
-            <configuration>
-              <skip>true</skip>
-              <parallel>none</parallel>
-              <threadCount>1</threadCount>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-
     <profile>
       <!--
       Added to make it easy to quickly verify if something "should" work
@@ -595,7 +433,7 @@
       <id>glassfish-embedded</id>
       <properties>
         <version.glassfish>3.1.2.2</version.glassfish>
-        <version.arquillian.glassfish.embedded>1.0.0.CR4</version.arquillian.glassfish.embedded>
+        <version.arquillian.glassfish.embedded>1.0.2</version.arquillian.glassfish.embedded>
         <version.mockito>1.9.0</version.mockito>
         <version.maven.embedded.glassfish.plugin>3.1.1</version.maven.embedded.glassfish.plugin>
         <version.maven.war.plugin>2.1.1</version.maven.war.plugin>

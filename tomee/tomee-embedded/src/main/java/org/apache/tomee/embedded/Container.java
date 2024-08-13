@@ -88,7 +88,7 @@ import org.apache.xbean.finder.archive.Archive;
 import org.apache.xbean.finder.filter.Filter;
 import org.apache.xbean.finder.filter.Filters;
 import org.apache.xbean.recipe.ObjectRecipe;
-import org.codehaus.swizzle.stream.ReplaceStringsInputStream;
+import org.tomitribe.swizzle.stream.ReplaceStringsInputStream;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -615,6 +615,9 @@ public class Container implements AutoCloseable {
                 connector.addUpgradeProtocol(new Http2Protocol());
             }
 
+            if ("true".equals(System.getProperty("tomee.embedded.tck.enable_tracing", "false"))) {
+                connector.setAllowTrace(true);
+            }
             tomcat.getService().addConnector(connector);
             tomcat.setConnector(connector);
         }

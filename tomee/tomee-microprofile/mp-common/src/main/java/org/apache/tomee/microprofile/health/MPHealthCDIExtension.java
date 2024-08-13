@@ -26,6 +26,7 @@ import jakarta.enterprise.inject.spi.BeforeShutdown;
 import jakarta.enterprise.inject.spi.Extension;
 import jakarta.enterprise.inject.spi.ProcessAnnotatedType;
 import jakarta.enterprise.util.AnnotationLiteral;
+import org.apache.openejb.loader.SystemInstance;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.health.HealthCheck;
@@ -42,9 +43,7 @@ import java.util.function.Consumer;
 
 public class MPHealthCDIExtension implements Extension {
 
-    private final String MP_HEALTH_DISABLE_DEFAULT_PROCEDURES = "mp.health.disable-default-procedures";
-
-
+    private static final String MP_HEALTH_DISABLE_DEFAULT_PROCEDURES = "mp.health.disable-default-procedures";
 
     // Use a single Jakarta Contexts and Dependency Injection instance to select and destroy all HealthCheck probes instances
     private Instance<Object> instance;
@@ -65,6 +64,10 @@ public class MPHealthCDIExtension implements Extension {
      * @param beanManager
      */
     public void observeBeforeBeanDiscovery(@Observes final BeforeBeanDiscovery bbd, final BeanManager beanManager) {
+        if ("none".equals(SystemInstance.get().getOptions().get("tomee.mp.scan", "none"))) {
+            return;
+        }
+
         bbd.addAnnotatedType(beanManager.createAnnotatedType(MicroProfileHealthReporterProducer.class), "MicroProfileHealthReporterProducer");
     }
 
@@ -73,6 +76,10 @@ public class MPHealthCDIExtension implements Extension {
      * add them to the {@link MicroProfileHealthReporter}.
      */
     private void afterDeploymentValidation(@Observes final AfterDeploymentValidation avd, BeanManager bm) {
+        if ("none".equals(SystemInstance.get().getOptions().get("tomee.mp.scan", "none"))) {
+            return;
+        }
+
         instance = bm.createInstance();
 
         final Instance<MicroProfileHealthReporter> reporters = instance.select(MicroProfileHealthReporter.class);

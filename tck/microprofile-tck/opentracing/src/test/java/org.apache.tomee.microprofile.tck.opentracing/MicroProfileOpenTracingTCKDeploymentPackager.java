@@ -18,8 +18,6 @@ package org.apache.tomee.microprofile.tck.opentracing;
 
 import io.opentracing.mock.MockTracer;
 import io.opentracing.util.ThreadLocalScopeManager;
-import jakarta.ws.rs.ext.Providers;
-import org.eclipse.microprofile.opentracing.ClientTracingRegistrarProvider;
 import org.jboss.arquillian.container.test.spi.TestDeployment;
 import org.jboss.arquillian.container.test.spi.client.deployment.ProtocolArchiveProcessor;
 import org.jboss.arquillian.protocol.servlet5.v_5.ServletProtocolDeploymentPackager;
@@ -51,9 +49,8 @@ public class MicroProfileOpenTracingTCKDeploymentPackager extends ServletProtoco
         webArchive.addAsLibrary(jarLocation(ThreadLocalScopeManager.class));
         webArchive.addAsWebInfResource("META-INF/beans.xml");
         webArchive.addClass(MicroProfileOpenTracingTCKTracer.class);
-        ;
 
-        System.out.println(webArchive.toString(true));
+        //System.out.println(webArchive.toString(true));
 
         return super.generateDeployment(
                 new TestDeployment(null, webArchive, testDeployment.getAuxiliaryArchives()), processors);

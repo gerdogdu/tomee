@@ -22,14 +22,14 @@
   <parent>
     <groupId>org.apache.tomee</groupId>
     <artifactId>microprofile-tck</artifactId>
-    <version>10.0.0-M1-SNAPSHOT</version>
+    <version>10.0.0-M3-SNAPSHOT</version>
   </parent>
 
   <artifactId>microprofile-rest-client-tck</artifactId>
   <name>TomEE :: TCK :: MicroProfile Rest Client TCK</name>
 
   <properties>
-    <!--<jetty-tck.version>${version.jetty}</jetty-tck.version>-->
+    <!-- Note: This old version is needed for the MP Rest Client TCK-->
     <jetty-tck.version>9.2.28.v20190418</jetty-tck.version>
   </properties>
 
@@ -170,7 +170,7 @@
     <dependency>
       <groupId>com.github.tomakehurst</groupId>
       <artifactId>wiremock</artifactId>
-      <version>2.10.1</version>
+      <version>2.27.2</version>
       <scope>test</scope>
     </dependency>
 

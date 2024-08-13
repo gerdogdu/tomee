@@ -88,7 +88,6 @@ import org.apache.openejb.assembler.classic.event.NewEjbAvailableAfterApplicatio
 import org.apache.openejb.cdi.CdiAppContextsService;
 import org.apache.openejb.cdi.CdiBuilder;
 import org.apache.openejb.cdi.OpenEJBLifecycle;
-import org.apache.openejb.cdi.Proxys;
 import org.apache.openejb.config.AppModule;
 import org.apache.openejb.config.ConfigurationFactory;
 import org.apache.openejb.config.DeploymentLoader;
@@ -126,7 +125,6 @@ import org.apache.tomcat.util.descriptor.web.FilterMap;
 import org.apache.tomcat.util.descriptor.web.ResourceBase;
 import org.apache.tomcat.util.http.CookieProcessor;
 import org.apache.tomcat.util.scan.StandardJarScanFilter;
-import org.apache.tomee.catalina.cdi.ServletContextHandler;
 import org.apache.tomee.catalina.cdi.WebBeansThreadBindingListener;
 import org.apache.tomee.catalina.cluster.ClusterObserver;
 import org.apache.tomee.catalina.cluster.TomEEClusterListener;
@@ -155,7 +153,6 @@ import javax.sql.DataSource;
 import jakarta.transaction.TransactionManager;
 import jakarta.transaction.TransactionSynchronizationRegistry;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -223,6 +220,8 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener, Pare
 
     private final Map<ClassLoader, InstanceManager> instanceManagers = new ConcurrentHashMap<>();
 
+    public static final Map<ClassLoader, ServletContext> CONTEXTS = new ConcurrentHashMap<>();
+
     /**
      * Context information for web applications
      */
@@ -269,7 +268,6 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener, Pare
 
     private ClassLoader parentClassLoader;
     private boolean initJEEInfo = true;
-    private final ServletContextHandler servletContextHandler;
     private final boolean noHostCheck;
 
     /**
@@ -341,7 +339,6 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener, Pare
         this.configurationFactory = configurationFactory;
         deploymentLoader = new DeploymentLoader();
 
-        servletContextHandler = new ServletContextHandler();
         setComponentsUsedByCDI();
 
         try { // before tomcat was using ServiceLoader or manually instantiation, now it uses SL for itself so we can be in conflict
@@ -356,13 +353,13 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener, Pare
     private void setComponentsUsedByCDI() {
         final SystemInstance systemInstance = SystemInstance.get();
         if (systemInstance.getComponent(HttpServletRequest.class) == null) {
-            systemInstance.setComponent(HttpServletRequest.class, Proxys.threadLocalProxy(HttpServletRequest.class, OpenEJBSecurityListener.requests, null));
+            systemInstance.setComponent(HttpServletRequest.class, HttpServletRequestProxy.get());
         }
         if (systemInstance.getComponent(HttpSession.class) == null) {
-            systemInstance.setComponent(jakarta.servlet.http.HttpSession.class, Proxys.threadLocalRequestSessionProxy(OpenEJBSecurityListener.requests, null));
+            systemInstance.setComponent(jakarta.servlet.http.HttpSession.class, HttpSessionProxy.get());
         }
         if (systemInstance.getComponent(ServletContext.class) == null) {
-            systemInstance.setComponent(ServletContext.class, Proxys.handlerProxy(servletContextHandler, ServletContext.class, CdiAppContextsService.FiredManually.class));
+            systemInstance.setComponent(ServletContext.class, ServletContextProxy.get());
         }
     }
 
@@ -1335,11 +1332,11 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener, Pare
 
                     setFinderOnContextConfig(standardContext, appModule);
 
-                    servletContextHandler.getContexts().put(classLoader, standardContext.getServletContext());
+                    CONTEXTS.put(classLoader, standardContext.getServletContext());
                     try {
                         appContext = a.createApplication(contextInfo.appInfo, classLoader);
                     } finally {
-                        servletContextHandler.getContexts().remove(classLoader);
+                        CONTEXTS.remove(classLoader);
                     }
                     // todo add watched resources to context
 
@@ -1460,7 +1457,7 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener, Pare
                 if (!contextInfo.appInfo.webAppAlone) {
                     final List<BeanContext> beanContexts = assembler.initEjbs(classLoader, contextInfo.appInfo, appContext, injections, new ArrayList<BeanContext>(), webAppInfo.moduleId);
                     OpenEJBLifecycle.CURRENT_APP_INFO.set(contextInfo.appInfo);
-                    servletContextHandler.getContexts().put(classLoader, standardContext.getServletContext());
+                    CONTEXTS.put(classLoader, standardContext.getServletContext());
                     try {
                         new CdiBuilder().build(contextInfo.appInfo, appContext, beanContexts, webContext);
                     } catch (final Exception e) {
@@ -1470,7 +1467,7 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener, Pare
                         }
                         throw e;
                     } finally {
-                        servletContextHandler.getContexts().remove(classLoader);
+                        CONTEXTS.remove(classLoader);
                         OpenEJBLifecycle.CURRENT_APP_INFO.remove();
                     }
                     assembler.startEjbs(true, beanContexts);
@@ -1807,7 +1804,7 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener, Pare
             // the CoreContainerSystem does not contain the WebContext
             // see also the start method getContainerSystem().addWebDeployment(webContext);
             try {
-                servletContextHandler.getContexts().put(classLoader, standardContext.getServletContext());
+                CONTEXTS.put(classLoader, standardContext.getServletContext());
 
                 for (final WebAppInfo webAppInfo : contextInfo.appInfo.webApps) {
                     final String wId = getId(webAppInfo.host, webAppInfo.contextRoot, contextInfo.version);
@@ -1828,7 +1825,7 @@ public class TomcatWebAppBuilder implements WebAppBuilder, ContextListener, Pare
                     }
                 }
             } finally {
-                servletContextHandler.getContexts().remove(classLoader);
+                CONTEXTS.remove(classLoader);
             }
 
             thread.setContextClassLoader(originalLoader);
