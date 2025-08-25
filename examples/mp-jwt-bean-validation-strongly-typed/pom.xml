@@ -20,14 +20,14 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.superbiz</groupId>
   <artifactId>mp-jwt-bean-validation-strongly-typed</artifactId>
-  <version>10.0.0-M4-SNAPSHOT</version>
+  <version>10.1.2-SNAPSHOT</version>
   <packaging>war</packaging>
   <name>TomEE :: Examples :: MicroProfile JWT Bean Validation, Strongly-typed Annotations</name>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <version.jakartaee-api>10.0</version.jakartaee-api>
-    <tomee.version>10.0.0-M4-SNAPSHOT</tomee.version>
-    <version.shrinkwrap.resolver>3.3.2</version.shrinkwrap.resolver>
+    <version.jakartaee-api>10.0.1</version.jakartaee-api>
+    <tomee.version>10.1.2-SNAPSHOT</tomee.version>
+    <version.shrinkwrap.resolver>3.3.4</version.shrinkwrap.resolver>
     <mp-jwt.version>1.1</mp-jwt.version>
   </properties>
   <build>
@@ -37,7 +37,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.5.2</version>
+        <version>3.5.3</version>
         <configuration>
           <reuseForks>false</reuseForks>
         </configuration>
@@ -53,7 +53,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.13.0</version>
+        <version>3.14.0</version>
         <configuration>
           <source>1.8</source>
           <target>1.8</target>
@@ -87,7 +87,7 @@
       <dependency>
         <groupId>org.jboss.arquillian</groupId>
         <artifactId>arquillian-bom</artifactId>
-        <version>1.9.1.Final</version>
+        <version>1.10.0.Final</version>
         <scope>import</scope>
         <type>pom</type>
       </dependency>
@@ -109,7 +109,7 @@
     <dependency>
       <groupId>com.nimbusds</groupId>
       <artifactId>nimbus-jose-jwt</artifactId>
-      <version>9.40</version>
+      <version>10.4.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>

@@ -20,11 +20,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.superbiz</groupId>
   <artifactId>jaxrs-json-provider-jettison</artifactId>
-  <version>10.0.0-M4-SNAPSHOT</version>
+  <version>10.1.2-SNAPSHOT</version>
   <packaging>war</packaging>
   <name>TomEE :: Examples :: JAXRS JSON Provider with Jettison </name>
   <properties>
-    <version.jakartaee-api>10.0</version.jakartaee-api>
+    <version.jakartaee-api>10.0.1</version.jakartaee-api>
     <version.arquillian.bom>1.7.1.Final</version.arquillian.bom>
     <junit.version>4.13.2</junit.version>
   </properties>
@@ -38,7 +38,7 @@
     <dependency>
       <groupId>org.apache.tomee.bom</groupId>
       <artifactId>jaxb-runtime</artifactId>
-      <version>10.0.0-M4-SNAPSHOT</version>
+      <version>10.1.2-SNAPSHOT</version>
       <type>pom</type>
       <scope>provided</scope>
     </dependency>
@@ -67,11 +67,9 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.tomee</groupId>
-      <artifactId>apache-tomee</artifactId>
+      <groupId>org.apache.tomee.bom</groupId>
+      <artifactId>tomee-microprofile</artifactId>
       <version>${project.version}</version>
-      <type>zip</type>
-      <classifier>microprofile</classifier>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -95,7 +93,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.13.0</version>
+        <version>3.14.0</version>
         <configuration>
           <source>1.8</source>
           <target>1.8</target>

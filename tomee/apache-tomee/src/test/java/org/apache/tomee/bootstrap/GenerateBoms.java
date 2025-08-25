@@ -362,6 +362,15 @@ public class GenerateBoms {
                 .filter(jar -> !jar.getName().equals("catalina-ant.jar"))
                 .filter(jar -> !jar.getName().startsWith("tomcat-i18n"))
                 .filter(jar -> !jar.getName().startsWith("jakartaee-migration"))
+                 /*
+                  Webapp distributions removed from BOM generation per:
+                    - https://issues.apache.org/jira/browse/TOMEE-3724
+                    - https://lists.apache.org/thread/31w7336d5ycqhmoy4pngbsjg3odm0yqx
+                  */
+                .filter(jar -> !jar.getName().startsWith("tomee-plume-webapp"))
+                .filter(jar -> !jar.getName().startsWith("tomee-plus-webapp"))
+                .filter(jar -> !jar.getName().startsWith("tomee-microprofile-webapp"))
+                .filter(jar -> !jar.getName().startsWith("tomee-webapp"))
                 .map(from)
                 .filter(Objects::nonNull)
                 .sorted()
@@ -523,19 +532,23 @@ public class GenerateBoms {
             }
 
             if (jar.getName().startsWith("ecj-")) {
-                return new Artifact("org.eclipse.jdt", "ecj", "3.33.0", null);
+                return new Artifact("org.eclipse.jdt", "ecj", "3.42.0", null);
             }
 
             if (jar.getName().equals("openejb-javaagent.jar")) {
                 return new Artifact("org.apache.tomee", "openejb-javaagent", "${project.version}", null);
             }
 
-            if (jar.getName().startsWith("openejb-") ||
+            if (jar.getName().startsWith("tomee-quartz-shade")) {
+                return new Artifact("org.apache.tomee.shade", "tomee-quartz-shade", "${version.tomee-quartz-shade}", null);
+            }
+
+            if ((jar.getName().startsWith("openejb-") ||
                     jar.getName().startsWith("tomee-") ||
                     jar.getName().startsWith("mp-common-") ||
                     jar.getName().startsWith("mp-jwt-") ||
-                    jar.getName().startsWith("mbean-annotation-")) {
-                final String artifact = jar.getName().replaceAll("-\\d\\d?.0.*", "");
+                    jar.getName().startsWith("mbean-annotation-"))) {
+                final String artifact = jar.getName().replaceAll("-\\d\\d?.1.*", "");
                 return new Artifact("org.apache.tomee", artifact, "${project.version}", null);
             }
 
@@ -598,8 +611,7 @@ public class GenerateBoms {
          * and all such data would be in the parent pom.
          */
         public String asBomDep() {
-            return "" +
-                    "    <dependency>\n" +
+            return "    <dependency>\n" +
                     "      <groupId>" + groupId + "</groupId>\n" +
                     "      <artifactId>" + artifactId + "</artifactId>\n" +
                     "      <version>" + version + "</version>\n" +
@@ -619,8 +631,7 @@ public class GenerateBoms {
          * the dependencies needed, but not duplicate the version information.
          */
         public String asManagedDep() {
-            return "" +
-                    "    <dependency>\n" +
+            return "    <dependency>\n" +
                     "      <groupId>" + groupId + "</groupId>\n" +
                     "      <artifactId>" + artifactId + "</artifactId>\n" +
                     "      <version>" + version + "</version>\n" +
@@ -658,7 +669,7 @@ public class GenerateBoms {
                 }
             }
             out.flush();
-            return new String(bytes.toByteArray());
+            return bytes.toString();
         }
     }
 }

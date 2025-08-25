@@ -213,6 +213,8 @@ public class CxfRSService extends RESTService {
     private void initCxfProviders(final Bus bus) {
         if (noProvidersExplicitlyAdded(bus)) {
             bus.setProperty("skip.default.json.provider.registration", "true"); // client jaxrs, we want johnzon not jettison
+            bus.setProperty("skip.jakarta.json.providers.registration",
+                SystemInstance.get().getProperty("openejb.jaxrs.skip.jakarta.json.providers.registration", "true"));  // Make sure default JAXRS 3.1 JSON-P/JSON-B providers are not loaded
 
             final Collection<Object> defaults = new ArrayList<>();
             List<String> jsonProviders;
@@ -237,8 +239,19 @@ public class CxfRSService extends RESTService {
 
             try {
                 final List<Object> all;
-                final String userProviders = SystemInstance.get().getProperty("openejb.jaxrs.client.providers");
-                if (userProviders == null) {
+                String userProviders = SystemInstance.get().getProperty("openejb.jaxrs.client.providers", "");
+                final boolean isMicroProfile = !("none".equals(SystemInstance.get().getOptions().get("tomee.mp.scan", "none")));
+
+                if(isMicroProfile) {
+                    if(!userProviders.isBlank()) {
+                        userProviders += ", ";
+                    } else {
+                        userProviders += "org.apache.tomee.microprofile.opentelemetry.LazyOpenTelemetryClientFilter";
+                        SystemInstance.get().setProperty("openejb.jaxrs.client.providers", userProviders);
+                    }
+                }
+
+                if (userProviders.isBlank()) {
                     (all = new ArrayList<>(defaults.size())).addAll(defaults);
                 } else {
                     all = new ArrayList<>(defaults.size() + 2 /* blind guess */);

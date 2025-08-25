@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class SecuredServletTest {
     @Container
     private static final KeycloakContainer KEYCLOAK_CONTAINER = new KeycloakContainer()
-            .withRealmImportFile("keycloak-realm.json");
+            .withRealmImportFile("tomee-realm.json");
 
     @Deployment(testable = false)
     public static WebArchive createDeployment() {
@@ -70,7 +70,7 @@ public class SecuredServletTest {
             HtmlForm loginForm = htmlPage.getForms().get(0);
             loginForm.getInputByName("username").setValue("tomee-user");
             loginForm.getInputByName("password").setValue("tomee");
-            TextPage securedServletPage = loginForm.getInputByName("login").click();
+            TextPage securedServletPage = loginForm.getButtonByName("login").click();
 
             assertEquals("Hello, tomee-user", securedServletPage.getContent());
         }
@@ -86,7 +86,7 @@ public class SecuredServletTest {
             HtmlForm loginForm = htmlPage.getForms().get(0);
             loginForm.getInputByName("username").setValue("tomee-admin");
             loginForm.getInputByName("password").setValue("tomee");
-            TextPage securedServletPage = loginForm.getInputByName("login").click();
+            TextPage securedServletPage = loginForm.getButtonByName("login").click();
 
             assertEquals("Hello, tomee-admin\nYou're an admin!", securedServletPage.getContent());
         }
