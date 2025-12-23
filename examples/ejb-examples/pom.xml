@@ -22,7 +22,7 @@
   <groupId>org.superbiz</groupId>
   <artifactId>ejb-examples</artifactId>
   <packaging>war</packaging>
-  <version>10.1.2-SNAPSHOT</version>
+  <version>11.0.0-SNAPSHOT</version>
   <name>TomEE :: Web Examples :: EJB Examples War</name>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -45,16 +45,17 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.14.0</version>
+        <version>3.14.1</version>
         <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
+          <source>17</source>
+          <target>17</target>
+          <release>17</release>
         </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
-        <version>3.4.0</version>
+        <version>3.5.0</version>
         <configuration>
           <failOnMissingWebXml>false</failOnMissingWebXml>
         </configuration>
@@ -62,7 +63,7 @@
       <plugin>
         <groupId>org.apache.tomee.maven</groupId>
         <artifactId>tomee-maven-plugin</artifactId>
-        <version>10.1.2-SNAPSHOT</version>
+        <version>11.0.0-SNAPSHOT</version>
         <configuration>
           <context>/ejb-examples</context>
           <tomeeClassifier>plus</tomeeClassifier>
@@ -75,7 +76,19 @@
     <dependency>
       <groupId>org.apache.tomee</groupId>
       <artifactId>jakartaee-api</artifactId>
-      <version>10.0.1</version>
+      <version>11.0.0-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.jws</groupId>
+      <artifactId>jakarta.jws-api</artifactId>
+      <version>3.0.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.xml.ws</groupId>
+      <artifactId>jakarta.xml.ws-api</artifactId>
+      <version>4.0.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

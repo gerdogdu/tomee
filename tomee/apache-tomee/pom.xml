@@ -23,7 +23,7 @@
   <parent>
     <artifactId>tomee</artifactId>
     <groupId>org.apache.tomee</groupId>
-    <version>10.1.2-SNAPSHOT</version>
+    <version>11.0.0-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -39,6 +39,16 @@
     <microprofile.work-dir>${project.build.directory}/microprofile-work-dir</microprofile.work-dir>
     <jdk.attach.allowAttachSelf>true</jdk.attach.allowAttachSelf>
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>1.18.42</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
     <dependency>
@@ -158,7 +168,6 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.18.38</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -180,6 +189,22 @@
         <filtering>true</filtering>
       </testResource>
     </testResources>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.14.1</version>
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
 
   <profiles>
@@ -578,9 +603,9 @@
               <createTarGz>true</createTarGz>
               <skips>
                 <jars>
-                  <bcpkix-jdk15to18-1.81.jar>org.bouncycastle:bcpkix-jdk15to18:jar:1.81</bcpkix-jdk15to18-1.81.jar>
-                  <bcprov-jdk15to18-1.81.jar>org.bouncycastle:bcprov-jdk15to18:jar:1.81</bcprov-jdk15to18-1.81.jar>
-                  <bcutil-jdk15to18-1.81.jar>org.bouncycastle:bcutil-jdk15to18:jar:1.81</bcutil-jdk15to18-1.81.jar>
+                  <bcpkix-jdk15to18-1.83.jar>org.bouncycastle:bcpkix-jdk15to18:jar:1.83</bcpkix-jdk15to18-1.83.jar>
+                  <bcprov-jdk15to18-1.83.jar>org.bouncycastle:bcprov-jdk15to18:jar:1.83</bcprov-jdk15to18-1.83.jar>
+                  <bcutil-jdk15to18-1.83.jar>org.bouncycastle:bcutil-jdk15to18:jar:1.83</bcutil-jdk15to18-1.83.jar>
                 </jars>
               </skips>
             </configuration>
@@ -596,7 +621,7 @@
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
-            <version>3.0.0</version>
+            <version>3.6.2</version>
             <executions>
               <execution>
                 <phase>package</phase>
@@ -811,9 +836,9 @@
               <createTarGz>true</createTarGz>
               <skips>
                 <jars>
-                  <bcpkix-jdk15to18-1.81.jar>org.bouncycastle:bcpkix-jdk15to18:jar:1.81</bcpkix-jdk15to18-1.81.jar>
-                  <bcprov-jdk15to18-1.81.jar>org.bouncycastle:bcprov-jdk15to18:jar:1.81</bcprov-jdk15to18-1.81.jar>
-                  <bcutil-jdk15to18-1.81.jar>org.bouncycastle:bcutil-jdk15to18:jar:1.81</bcutil-jdk15to18-1.81.jar>
+                  <bcpkix-jdk15to18-1.83.jar>org.bouncycastle:bcpkix-jdk15to18:jar:1.83</bcpkix-jdk15to18-1.83.jar>
+                  <bcprov-jdk15to18-1.83.jar>org.bouncycastle:bcprov-jdk15to18:jar:1.83</bcprov-jdk15to18-1.83.jar>
+                  <bcutil-jdk15to18-1.83.jar>org.bouncycastle:bcutil-jdk15to18:jar:1.83</bcutil-jdk15to18-1.83.jar>
                 </jars>
               </skips>
             </configuration>
@@ -829,7 +854,7 @@
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
-            <version>3.0.0</version>
+            <version>3.6.2</version>
             <executions>
               <execution>
                 <phase>package</phase>

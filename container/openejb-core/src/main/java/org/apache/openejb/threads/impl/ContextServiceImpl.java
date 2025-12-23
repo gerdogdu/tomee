@@ -27,9 +27,13 @@ import org.apache.openejb.OpenEJBRuntimeException;
 import org.apache.openejb.resource.thread.ManagedExecutorServiceImplFactory;
 import org.apache.openejb.threads.future.CUCompletableFuture;
 import org.apache.openejb.threads.task.CUTask;
+import org.apache.openejb.util.LogCategory;
+import org.apache.openejb.util.Logger;
 
 import javax.naming.NamingException;
+import java.io.PrintWriter;
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -40,6 +44,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Flow;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -53,6 +58,8 @@ public class ContextServiceImpl implements ContextService, Serializable {
 
     // TODO is lost after serialization, probably need to store some reference that can be resolved again after deserializing
     private transient ManagedExecutorService mes;
+
+    private static Logger LOG = Logger.getInstance(LogCategory.OPENEJB.createChild("ThreadContext"), "org.apache.openejb.cdi");
 
     public ContextServiceImpl(List<ThreadContextProvider> propagated, List<ThreadContextProvider> cleared, List<ThreadContextProvider> unchanged) {
         this.propagated = propagated;
@@ -98,6 +105,16 @@ public class ContextServiceImpl implements ContextService, Serializable {
     @Override
     public <R> Supplier<R> contextualSupplier(final Supplier<R> supplier) {
         return createContextualProxy(supplier, Supplier.class);
+    }
+
+    @Override
+    public <T> Flow.Subscriber<T> contextualSubscriber(Flow.Subscriber<T> subscriber) {
+        return createContextualProxy(subscriber, Flow.Subscriber.class);
+    }
+
+    @Override
+    public <T, R> Flow.Processor<T, R> contextualProcessor(Flow.Processor<T, R> processor) {
+        return createContextualProxy(processor, Flow.Processor.class);
     }
 
     @Override
@@ -188,6 +205,9 @@ public class ContextServiceImpl implements ContextService, Serializable {
             snapshots.add(snapshot);
         }
 
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("ContextServiceImpl.snapshot snapshots=" + snapshots);
+        }
         return new Snapshot(snapshots);
     }
 
@@ -203,6 +223,10 @@ public class ContextServiceImpl implements ContextService, Serializable {
 
     public State enter(final Snapshot snapshot) {
 
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("ContextServiceImpl.enter snapshot=" + snapshot);
+        }
+
         final List<ThreadContextRestorer> restorers = new ArrayList<>();
 
         for (ThreadContextSnapshot tcs : snapshot.snapshots()) {
@@ -213,10 +237,18 @@ public class ContextServiceImpl implements ContextService, Serializable {
             }
         }
 
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("ContextServiceImpl.enter restorers=" + restorers);
+        }
+
         return new State(restorers);
     }
 
     public void exit(final State state) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("ContextServiceImpl.exit restorers=" + state.restorers());
+        }
+
         if (state != null) {
             final List<ThreadContextRestorer> restorers = state.restorers();
             for (ThreadContextRestorer restorer : restorers) {
@@ -308,4 +340,14 @@ public class ContextServiceImpl implements ContextService, Serializable {
     // a ClassLoader to restore which is not serializable
     public record State(List<ThreadContextRestorer> restorers) { }
     public record Snapshot(List<ThreadContextSnapshot> snapshots) implements Serializable { }
+
+    private static String fromStackTrace(final Throwable throwable) {
+        final StringWriter sw = new StringWriter();
+        final PrintWriter pw = new PrintWriter(sw);
+        throwable.printStackTrace(pw);
+        pw.flush();
+
+        return sw.toString();
+    }
+
 }
